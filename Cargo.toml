@@ -1,0 +1,65 @@
+[package]
+name = "azurejay"
+version = "1.0.0"
+description = "AzureJay."
+edition = "2024"
+rust-version = "1.98"
+license = "MIT"
+authors = ["AzureJay"]
+
+[dependencies]
+# Async runtime + primitives
+tokio = { version = "1.47", features = ["full"] }
+futures = "0.3"
+async-trait = "0.1"
+axum = { version = "0.8", features = ["multipart", "macros"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = [
+    "cors",
+    "trace",
+    "timeout",
+    "compression-full",
+    "limit",
+] }
+sqlx = { version = "0.8", default-features = false, features = [
+    "runtime-tokio",
+    "tls-rustls",
+    "postgres",
+    "uuid",
+    "chrono",
+    "macros",
+    "migrate",
+] }
+redis = { version = "0.27", features = ["tokio-comp", "connection-manager"] }
+rig-core = "0.36"
+schemars = "1"
+jsonwebtoken = "9"
+argon2 = "0.5"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+regex = "1"
+reqwest = { version = "0.12", default-features = false, features = [
+    "json",
+    "multipart",
+    "stream",
+    "rustls-tls",
+] }
+uuid = { version = "1", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+dotenvy = "0.15"
+whatlang = "0.16"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "debuginfo"

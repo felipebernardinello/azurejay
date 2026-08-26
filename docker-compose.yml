@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: azurejay
+      POSTGRES_PASSWORD: azurejay
+      POSTGRES_DB: azurejay
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U azurejay"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://azurejay:azurejay@db:5432/azurejay
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:-change-me-to-a-long-random-secret}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      COA_MODEL: ${COA_MODEL:-qwen/qwen3-32b}
+      COA_TTS_N: ${COA_TTS_N:-3}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      LANGUAGETOOL_BASE_URL: ${LANGUAGETOOL_BASE_URL:-https://api.languagetoolplus.com/v2}
+      LANGUAGETOOL_API_KEY: ${LANGUAGETOOL_API_KEY:-}
+      ELEVEN_LABS_API_KEY: ${ELEVEN_LABS_API_KEY:-}
+      API_HOST: 0.0.0.0
+      API_PORT: "8000"
+    ports:
+      - "8000:8000"
+
+volumes:
+  pgdata:
